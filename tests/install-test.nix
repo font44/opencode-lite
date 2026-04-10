@@ -26,6 +26,16 @@ pkgs.testers.nixosTest {
     machine.succeed("test -f ${cfg}/agents/builder.md")
     machine.succeed("test -f ${cfg}/agents/general.md")
 
+    # Command files exist and are non-empty
+    machine.succeed("test -s ${cfg}/commands/plan.md")
+    machine.succeed("test -s ${cfg}/commands/implement-plan.md")
+    machine.succeed("test -s ${cfg}/commands/review-code.md")
+    machine.succeed("test -s ${cfg}/commands/review-plan.md")
+
+    # Skill files exist and are non-empty
+    machine.succeed("test -s ${cfg}/skills/fetch-website-in-markdown/SKILL.md")
+    machine.succeed("test -s ${cfg}/skills/flashcard-content-creator/SKILL.md")
+
     # opencode.jsonc: default_agent is builder, build and plan disabled
     machine.succeed(
         "${pkgs.jq}/bin/jq -e '.default_agent == \"builder\"' ${cfg}/opencode.jsonc"
