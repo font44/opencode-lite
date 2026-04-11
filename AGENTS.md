@@ -1,33 +1,18 @@
 # Agents
 
-Nix flake that packages a shared OpenCode configuration and a bwrap-sandboxed OpenCode binary. Installed via `nix profile install` — no manual env var setup needed.
+Nix flake packaging a shared OpenCode configuration with an optional bwrap-sandboxed variant.
 
 ## Structure
 
-- `flake.nix` — builds a sandboxed OpenCode wrapper with bundled config
-  - **inputs**: `nixpkgs`, `llm-agents-nix` (OpenCode binary), `nix-bwrapper` (bubblewrap sandboxing)
-  - **default package**: `opencode` binary (sandboxed on Linux, unsandboxed on macOS) + config in `share/opencode-config/`
-- `config/opencode.jsonc` — disables `build`/`plan` agents, sets `builder` as default
-- `config/agents/builder.md` — primary agent (minimal system prompt)
-- `config/agents/general.md` — subagent override (minimal system prompt)
-- `config/AGENTS.md` — global instructions injected into all OpenCode sessions
-
-## Sandboxing (Linux only)
-
-Uses `nix-bwrapper` with the `devshell` preset. The sandbox:
-- Confines OpenCode to `$PWD` (read-write)
-- Provides persistent sandboxed `~/.config`, `~/.local`, `~/.cache`
-- Grants read access to `/nix/var` and `~/.ssh`
-- Grants read-write access to `~/.config/opencode`
-- Shares network (not isolated)
-
-On macOS, OpenCode runs unsandboxed (bwrapper requires bubblewrap/FHS).
+- `flake.nix` — wrapper(s) with bundled config; `default` (all platforms) and `sandbox-opencode` (Linux/bwrap)
+- `config/opencode.jsonc` — OpenCode settings
+- `config/agents/` — agent prompts (build, plan, general, review-code, review-plan)
+- `config/AGENTS.md` — global instructions for all sessions
 
 ## Constraints
 
-- Agent prompts are intentionally minimal ("You are OpenCode, an AI coding agent."). Do not add detailed instructions to them.
-- `config/AGENTS.md` is for brief, global behavioral rules — keep it short.
-- Do not re-enable `build` or `plan` agents.
+- `config/AGENTS.md`: brief global rules only.
+- Review subagents must remain read-only (edit/bash denied).
 
 ## Testing
 

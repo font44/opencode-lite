@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    flake-utils.url = "github:numtide/flake-utils";
 
     llm-agents-nix = {
       url = "github:numtide/llm-agents.nix";
@@ -19,22 +20,11 @@
     {
       self,
       nixpkgs,
+      flake-utils,
       llm-agents-nix,
       nix-bwrapper,
     }:
     let
-      linuxSystems = [
-        "x86_64-linux"
-        "aarch64-linux"
-      ];
-      darwinSystems = [
-        "x86_64-darwin"
-        "aarch64-darwin"
-      ];
-      allSystems = linuxSystems ++ darwinSystems;
-
-      eachSystem = systems: f: nixpkgs.lib.genAttrs systems (system: f system);
-
       configDrv =
         pkgs:
         pkgs.runCommand "opencode-config" { } ''
@@ -67,13 +57,10 @@
           };
         };
 
-      wrappedPackage =
-        system:
+      wrapOpenCode =
+        pkgs: opencode:
         let
-          pkgs = nixpkgs.legacyPackages.${system};
           config = configDrv pkgs;
-          isLinux = builtins.elem system linuxSystems;
-          opencode = if isLinux then sandboxedOpenCode system else llm-agents-nix.packages.${system}.opencode;
         in
         pkgs.symlinkJoin {
           name = "opencode-wrapped";
@@ -86,11 +73,22 @@
           '';
         };
     in
-    {
-      packages = eachSystem allSystems (system: {
-        default = wrappedPackage system;
-      });
-
+    flake-utils.lib.eachDefaultSystem (
+      system:
+      let
+        pkgs = nixpkgs.legacyPackages.${system};
+        isLinux = pkgs.stdenv.isLinux;
+      in
+      {
+        packages = {
+          default = wrapOpenCode pkgs llm-agents-nix.packages.${system}.opencode;
+        }
+        // nixpkgs.lib.optionalAttrs isLinux {
+          sandbox-opencode = wrapOpenCode pkgs (sandboxedOpenCode system);
+        };
+      }
+    )
+    // {
       checks.x86_64-linux.install-test = import ./tests/install-test.nix {
         pkgs = nixpkgs.legacyPackages.x86_64-linux;
         inherit self;
