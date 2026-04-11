@@ -3,17 +3,10 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+
     flake-utils.url = "github:numtide/flake-utils";
-
-    llm-agents-nix = {
-      url = "github:numtide/llm-agents.nix";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    nix-bwrapper = {
-      url = "github:Naxdy/nix-bwrapper";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
+    llm-agents-nix.url = "github:numtide/llm-agents.nix";
+    nix-bwrapper.url = "github:Naxdy/nix-bwrapper";
   };
 
   outputs =
