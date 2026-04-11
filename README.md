@@ -2,15 +2,13 @@
 
 Shared [OpenCode](https://opencode.ai) configuration managed as a Nix flake.
 
-Installs a bwrap-sandboxed OpenCode binary (Linux) with bundled config. Disables built-in `build`/`plan` agents, replaces them with a single `builder` primary agent with a minimal system prompt.
+Packages OpenCode with bundled config (agents, skills, settings). Two outputs: `default` (all platforms) and `sandbox-opencode` (Linux, bwrap-sandboxed). Disables the built-in `explore` agent; ships (highly) minimal `build`, `plan`, and `general` agents.
 
 ## Install
 
 ```bash
-nix profile install github:<user>/opencode-config
+nix profile install github:font44/opencode-config
 ```
-
-That's it — `opencode` is on your PATH with config pre-wired. No env vars needed.
 
 ## Update
 
