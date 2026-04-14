@@ -1,8 +1,4 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["./plugins/slim-tools.ts", "@tarquinen/opencode-dcp"],
-  "agent": {
-    "explore": { "disable": true },
-    "general": { "disable": true }
-  }
+  "plugin": ["./plugins/slim-tools.ts", "@tarquinen/opencode-dcp"]
 }
