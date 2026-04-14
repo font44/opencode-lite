@@ -26,13 +26,12 @@
         '';
 
       sandboxedOpenCode =
-        system:
+        system: opencode:
         let
           pkgs = import nixpkgs {
             inherit system;
             overlays = [ nix-bwrapper.overlays.default ];
           };
-          opencode = llm-agents-nix.packages.${system}.opencode;
         in
         pkgs.mkBwrapper {
           imports = [
@@ -69,15 +68,16 @@
     flake-utils.lib.eachDefaultSystem (
       system:
       let
+	    opencode = llm-agents-nix.packages.${system}.opencode;
         pkgs = nixpkgs.legacyPackages.${system};
         isLinux = pkgs.stdenv.isLinux;
       in
       {
         packages = {
-          default = wrapOpenCode pkgs llm-agents-nix.packages.${system}.opencode;
+          default = wrapOpenCode pkgs opencode;
         }
         // nixpkgs.lib.optionalAttrs isLinux {
-          sandbox-opencode = wrapOpenCode pkgs (sandboxedOpenCode system);
+          sandbox-opencode = wrapOpenCode pkgs (sandboxedOpenCode system opencode);
         };
       }
     )
